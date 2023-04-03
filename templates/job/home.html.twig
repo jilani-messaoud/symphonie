@@ -20,7 +20,7 @@
             <td>
                 <a class="btn btn-primary" href="#">voire</a>
                 <a class="btn btn-primary" href="#">Modifier</a>
-                <a class="btn btn-info" href="#">Supprimer</a>
+                <a class="btn btn-danger" href="{{path('cand_delete', {'id':candidat.id})}}" onclick="return confirm('are you sure to delete {{candidat.candidat}}')">Supprimer</a>
             </td>
         </tr>
     {% endfor %}

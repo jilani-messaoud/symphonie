@@ -7,6 +7,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Job;
 use App\Entity\Candidature;
+use DateTime;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Form\Extension\Core\Type\FormType;
 
 class JobController extends AbstractController
 {
@@ -77,4 +85,62 @@ public function home(){
     $lesCondidatures=$repo->findAll();
     return $this->render('job/home.html.twig',['lesCondidatures'=>$lesCondidatures ]);
 }
+/**
+ * @Route("/Ajouter", name="Ajouter")
+ */
+public function ajouter(Request $request){
+    $candidat = new Candidature();
+    $fb= $this ->createFormBuilder($candidat)
+    ->add('candidat',TextType::class)
+    ->add('contenu',TextType::class, array("label"=>"Contenu"))
+    ->add('datec',DateType::class)
+    ->add('job',EntityType::class,[
+        'class'=> Job::class,
+        'choice_label'=>'type'
+    ])
+    ->add('Valider',SubmitType::class);
+    $form = $fb->getForm();
+    $form->handleRequest($request);
+    if($form->isSubmitted()){
+        $em= $this->getDoctrine()->getManager();
+        $em ->persist($candidat);
+        $em->flush();
+    }
+    return $this->render('job/ajouter.html.twig',
+    ['f'=>$form->createView()]);
+}
+/**
+ * @Route("/Ajouter_job", name="Ajouter_job")
+ */
+public function ajouter2(Request $request){
+   $job= new Job();
+    $form= $this->createForm("App\Form\JobType",$job);
+    $form->handleRequest($request);
+    if($form->isSubmitted()){
+        $em= $this->getDoctrine()->getManager();
+        $em ->persist($job);
+        $em->flush();
+        return $this->redirectToRoute('home');
+    }
+    return $this->render('job/ajouter.html.twig',
+    ['f'=>$form->createView()]);
+}
+
+
+/**
+ * @Route("/supp/{id}", name="cand_delete")
+ */
+public function delete($id):Response{
+    $c = $this->getDoctrine()->getRepository(Candidature::class)->find($id);
+    if (!$c) {
+        throw $this->createNotFoundException(
+            'No job found for this id '.$id
+        );
+    }
+    $entityManager = $this->getDoctrine()->getManager();
+    $entityManager->remove($c);
+    $entityManager->flush();
+    return $this->redirectToRoute('home');
+}
+
 }
