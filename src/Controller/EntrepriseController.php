@@ -12,13 +12,12 @@ class EntrepriseController extends AbstractController
     #[Route('/entreprise', name: 'app_entreprise')]
     public function index(): Response
     {
+        $entityManager = $this->getDoctrine()->getManager();
         $entreprise=new Entreprise();
         $entreprise->setTitre("djosoft");
         $entreprise->setEmail("djo.messaoud@gmail.com");
         $entreprise->setSpecialite("Data science");
         $entreprise->setCreatedAt(new \DateTime());
-        
-        $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($entreprise);
         $entityManager->flush();
         return $this->render('entreprise/index.html.twig', [
