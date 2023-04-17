@@ -31,8 +31,8 @@ class Job
     #[ORM\Column(length: 255)]
     private ?string $email = null;
 
-    #[ORM\OneToOne(targetEntity: Image::class, cascade: ['persist', 'remove'])]
-    private $Image = null;
+    #[ORM\Column(length: 255)]
+    private ?string $image = null;
 
     public function getId(): ?int
     {
@@ -59,6 +59,17 @@ class Job
     public function setCompany(string $company): self
     {
         $this->company = $company;
+
+        return $this;
+    }
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(string $image): self
+    {
+        $this->image = $image;
 
         return $this;
     }
@@ -99,15 +110,5 @@ class Job
         return $this;
     }
 
-    public function getImage(): ?Image
-    {
-        return $this->Image;
-    }
-
-    public function setImage(?Image $Image): self
-    {
-        $this->Image = $Image;
-
-        return $this;
-    }
+    
 }

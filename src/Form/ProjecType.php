@@ -2,32 +2,27 @@
 
 namespace App\Form;
 
-use App\Entity\Job;
+use App\Entity\Projec;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 
-class JobType extends AbstractType
+class ProjecType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('type')
-            ->add('company')
+            ->add('nomprojet')
             ->add('description')
-            ->add('expires_at')
-            ->add('email')
-            ->add('image',FileType::class)
-            ->add('Valider',SubmitType::class)
+            ->add('duree')
+            ->add('prix')
         ;
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Job::class,
+            'data_class' => Projec::class,
         ]);
     }
 }

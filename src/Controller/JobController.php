@@ -55,7 +55,7 @@ class JobController extends AbstractController
     /**
 * @Route("/job/{id}", name="job_show")
 */
-public function show($id)
+public function show($id,Request $request)
 {
  $job = $this->getDoctrine()
  ->getRepository(Job::class)
@@ -63,6 +63,7 @@ public function show($id)
  $em=$this->getDoctrine()->getManager();
  $listCandidatures=$em->getRepository(Candidature::class)
  ->findBy(['Job'=>$job]);
+ $publicPath = $request->getScheme().'://'.$request->getHttpHost().$request->getBasePath().'/uploads/jobs/';
  if (!$job) {
  throw $this->createNotFoundException(
  'No job found for id '.$id
@@ -70,7 +71,8 @@ public function show($id)
  }
  return $this->render('job/show.html.twig',[
     'listCandidatures'=>$listCandidatures,
-    'job'=>$job
+    'job'=>$job,
+    'publicPath'=>$publicPath
  ]);
  return $this->render('job/show.html.twig', [
     'job' =>$job
@@ -79,16 +81,27 @@ public function show($id)
    /**
 * @Route("/", name="home")
 */
-public function home(){
+public function home(Request $request){
+    $form=$this->createFormBuilder()
+    ->add("critere",TextType::class)
+    ->add('valider',SubmitType::class)
+    ->getForm();
+    $form->handleRequest($request);
     $em=$this->getDoctrine()->getManager();
     $repo= $em->getRepository(Candidature::class);
+    if($form->isSubmitted())
+{
+   $data = $form->getData();
+   $lesCandidats = $repo->recherche($data['critere']);
+}
     $lesCondidatures=$repo->findAll();
-    return $this->render('job/home.html.twig',['lesCondidatures'=>$lesCondidatures ]);
+    return $this->render('job/home.html.twig',['lesCondidatures'=>$lesCondidatures,'form' =>$form->createview() ]);
 }
 /**
  * @Route("/Ajouter", name="Ajouter")
  */
 public function ajouter(Request $request){
+
     $candidat = new Candidature();
     $fb= $this ->createFormBuilder($candidat)
     ->add('candidat',TextType::class)
@@ -113,10 +126,17 @@ public function ajouter(Request $request){
  * @Route("/Ajouter_job", name="Ajouter_job")
  */
 public function ajouter2(Request $request){
+    $publicPath="uploads/job/";
    $job= new Job();
     $form= $this->createForm("App\Form\JobType",$job);
     $form->handleRequest($request);
     if($form->isSubmitted()){
+        $image=$form->get('image')->getData();
+        if($image){
+            $imageName = $job->getDescription().'.'.$image->guessExtension();
+            $image->move($publicPath,$imageName);
+            $job->setImage($imageName);
+        }
         $em= $this->getDoctrine()->getManager();
         $em ->persist($job);
         $em->flush();
@@ -141,6 +161,40 @@ public function delete($id):Response{
     $entityManager->remove($c);
     $entityManager->flush();
     return $this->redirectToRoute('home');
+}
+/**
+* @Route("/editU/{id}", name="edit_user")
+* Method({"GET","POST"})
+*/
+public function edit(Request $request, $id)
+{ $candidat = new Candidature();
+$candidat = $this->getDoctrine()
+->getRepository(Candidature::class)
+->find($id);
+if (!$candidat) {
+throw $this->createNotFoundException(
+'No candidat found for id '.$id
+);
+}
+$fb = $this->createFormBuilder($candidat)
+->add('candidat', TextType::class)
+->add('contenu', TextType::class, array("label" => "Contenu"))
+->add('datec', DateType::class)
+->add('job', EntityType::class, [
+'class' => Job::class,
+'choice_label' => 'type',
+])
+->add('Valider', SubmitType::class);
+// générer le formulaire à partir du FormBuilder
+$form = $fb->getForm();
+$form->handleRequest($request);
+if ($form->isSubmitted()) {
+$entityManager = $this->getDoctrine()->getManager();
+$entityManager->flush();
+return $this->redirectToRoute('home');
+}
+return $this->render('job/ajouter.html.twig',
+['f' => $form->createView()] );
 }
 
 }
