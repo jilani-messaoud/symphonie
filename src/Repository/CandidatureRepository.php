@@ -63,13 +63,12 @@ class CandidatureRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
-public function recherche($s)
-    {
-        return $this->createQueryBuilder('m')
-           ->Where('m.candidat LIKE :critere')
-            ->setParameter('critere','%'.$s.'%')
-            ->getQuery()
-            ->getResult();
-        
-    }
+public function recherche ($s)
+{
+return $this->createQueryBuilder('m')
+->where('m.candidat LIKE :critere')
+->setParameter('critere','%'.$s.'%')
+->getQuery()
+->getResult();
+}
 }

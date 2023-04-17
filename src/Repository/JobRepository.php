@@ -63,4 +63,12 @@ class JobRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+public function recherche ($s)
+{
+return $this->createQueryBuilder('m')
+->where('m.job LIKE :critere')
+->setParameter('critere','%'.$s.'%')
+->getQuery()
+->getResult();
+}
 }

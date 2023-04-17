@@ -82,21 +82,24 @@ public function show($id,Request $request)
 * @Route("/", name="home")
 */
 public function home(Request $request){
-    $form=$this->createFormBuilder()
-    ->add("critere",TextType::class)
-    ->add('valider',SubmitType::class)
-    ->getForm();
-    $form->handleRequest($request);
-    $em=$this->getDoctrine()->getManager();
-    $repo= $em->getRepository(Candidature::class);
-    if($form->isSubmitted())
-{
-   $data = $form->getData();
-   $lesCandidats = $repo->recherche($data['critere']);
-}
-    $lesCondidatures=$repo->findAll();
-    return $this->render('job/home.html.twig',['lesCondidatures'=>$lesCondidatures,'form' =>$form->createview() ]);
-}
+    //creation du champ critere 
+ $form = $this->createFormBuilder()
+ ->add("critere", TextType::class)
+ ->add('valider', SubmitType::class)
+ ->getForm();
+ $form->handleRequest($request);
+ $em=$this->getDoctrine()->getManager();
+ $repo = $em ->getRepository(Candidature::class);
+ $lesCandidats=$repo->findAll();
+ //lancer la recherche quand on clique sur le bouton
+ if($form->isSubmitted())
+ {
+    $data = $form->getData();
+    $lesCandidats = $repo->recherche($data['critere']);
+ }
+ return $this->render('job/home.html.twig', 
+     ['lesCandidats' => $lesCandidats,'form'=>$form->createview()]);
+  }
 /**
  * @Route("/Ajouter", name="Ajouter")
  */
@@ -196,5 +199,30 @@ return $this->redirectToRoute('home');
 return $this->render('job/ajouter.html.twig',
 ['f' => $form->createView()] );
 }
+ /**
+     * @Route("/listejob", name="listejob")
+     */
+
+     public function afficherList(Request $request){
+
+        $form=$this->createFormBuilder()
+            ->add("critere",TextType::class)
+            ->add("valider",SubmitType::class)
+            ->getForm();
+        $form->handleRequest($request);
+
+        $em = $this->getDoctrine()->getManager();
+        $repo = $em->getRepository(Job::class);
+        $lesJobs=$repo->findAll();
+
+        if($form->isSubmitted()){
+            $data= $form->getData();
+            $lesJobs=$repo->recherche($data['critere']);
+        }
+        return $this->render('job/liste.html.twig',[
+            'lesJobs'=>$lesJobs,
+            'form1'=>$form->createView()
+        ]);
+    }
 
 }
