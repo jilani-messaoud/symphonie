@@ -28,10 +28,11 @@
                 <li><a href="{{ path('listejob') }}">list job</a></li>
                 <li><a href="{{ path('home') }}">list candidate</a></li>
             </ul>
-
+            
         </div>
     </nav>
     <h1 class="text-center">{% block titre %} welcome to ESPRIMS job search{% endblock %}</h1>
+    <a href="{{path('security_logout')}}">sign out</a>
         {% block body %}{% endblock %}
     </body>
 </html>

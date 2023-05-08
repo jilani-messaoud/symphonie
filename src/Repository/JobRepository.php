@@ -63,6 +63,7 @@ class JobRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
 public function recherche ($s)
 {
 return $this->createQueryBuilder('m')
